@@ -1,0 +1,15 @@
+CREATE TABLE IF NOT EXISTS prompts (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  content TEXT NOT NULL,
+  created_at INTEGER
+);
+
+CREATE TABLE IF NOT EXISTS records (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  prompt_id INTEGER NOT NULL,
+  title TEXT,
+  description TEXT NOT NULL,
+  created_at INTEGER,
+  FOREIGN KEY (prompt_id) REFERENCES prompts(id) ON DELETE CASCADE
+);
+

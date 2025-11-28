@@ -1,0 +1,15 @@
+CREATE TABLE IF NOT EXISTS prompts (
+  id SERIAL PRIMARY KEY,
+  content TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS records (
+  id SERIAL PRIMARY KEY,
+  prompt_id INTEGER NOT NULL,
+  title TEXT,
+  description TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT NOW(),
+  FOREIGN KEY (prompt_id) REFERENCES prompts(id) ON DELETE CASCADE
+);
+

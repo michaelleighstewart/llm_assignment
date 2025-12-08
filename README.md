@@ -68,6 +68,8 @@ Create a `.env.local` file in the root directory:
 ```env
 DATABASE_URL=file:./local.db
 OPENAI_API_KEY=your-openai-api-key-here
+ANTHROPIC_API_KEY=your-anthropic-api-key-here   # required if LLM_PROVIDER=anthropic
+LLM_PROVIDER=openai                              # or 'anthropic'
 NODE_ENV=development
 ```
 

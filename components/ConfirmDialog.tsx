@@ -73,12 +73,14 @@ export function ConfirmDialog({
         {/* Actions */}
         <div className="flex gap-3">
           <button
+            data-testid="confirm-dialog-confirm"
             onClick={handleConfirm}
             className={`flex-1 px-4 py-2.5 ${styles.button} text-white font-semibold rounded-lg focus:outline-none focus:ring-2 cursor-pointer`}
           >
             {confirmText}
           </button>
           <button
+            data-testid="confirm-dialog-cancel"
             onClick={onClose}
             className="flex-1 px-4 py-2.5 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 font-semibold rounded-lg focus:outline-none focus:ring-2 cursor-pointer"
           >

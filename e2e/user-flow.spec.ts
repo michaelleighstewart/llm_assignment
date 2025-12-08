@@ -45,15 +45,25 @@ test.describe('User Flow', () => {
   test('should submit a prompt and display records', async ({ page }) => {
     await page.goto('/');
     
-    // Fill in the prompt
+    const textarea = page.locator('textarea');
+    const submitButton = page.locator('button[type="submit"]');
+    
+    // Wait for the textarea to be ready
+    await expect(textarea).toBeVisible();
+    
+    // Fill in the prompt - use pressSequentially for webkit compatibility with React controlled inputs
     const promptText = 'Give me tax optimization strategies';
-    await page.fill('textarea', promptText);
+    await textarea.click();
+    await textarea.pressSequentially(promptText, { delay: 10 });
+    
+    // Wait for React to update the button state after filling
+    await expect(submitButton).toBeEnabled({ timeout: 5000 });
     
     // Submit the form
-    await page.click('button[type="submit"]');
+    await submitButton.click();
     
     // Wait for loading to complete
-    await expect(page.locator('button[type="submit"]')).not.toBeDisabled({ timeout: 30000 });
+    await expect(submitButton).not.toBeDisabled({ timeout: 30000 });
     
     // Check that records are displayed (or check for the current prompt display)
     // The actual records depend on whether the mock is working end-to-end
@@ -75,11 +85,20 @@ test.describe('User Flow', () => {
       });
     });
     
-    await page.fill('textarea', 'Test prompt');
-    await page.click('button[type="submit"]');
+    const textarea = page.locator('textarea');
+    const submitButton = page.locator('button[type="submit"]');
+    
+    // Use pressSequentially for webkit compatibility with React controlled inputs
+    await textarea.click();
+    await textarea.pressSequentially('Test prompt', { delay: 10 });
+    
+    // Wait for React to update the button state after filling
+    await expect(submitButton).toBeEnabled({ timeout: 5000 });
+    
+    await submitButton.click();
     
     // Button should be disabled during loading
-    await expect(page.locator('button[type="submit"]')).toBeDisabled();
+    await expect(submitButton).toBeDisabled();
   });
 
   test('should display error for empty prompt', async ({ page }) => {
@@ -132,20 +151,24 @@ test.describe('Record Management', () => {
   test('should display existing records on page load', async ({ page }) => {
     await page.goto('/');
     
+    const existingRecord = page.getByTestId('record-card').filter({ hasText: 'Existing Record' });
+    const anotherRecord = page.getByTestId('record-card').filter({ hasText: 'Another Record' });
+
     // Wait for records to load
-    await expect(page.locator('text=Existing Record')).toBeVisible({ timeout: 5000 });
-    await expect(page.locator('text=Another Record')).toBeVisible();
+    await expect(existingRecord).toBeVisible({ timeout: 5000 });
+    await expect(anotherRecord).toBeVisible();
   });
 
   test('should open edit modal when clicking edit button', async ({ page }) => {
     await page.goto('/');
     
+    const existingRecord = page.getByTestId('record-card').filter({ hasText: 'Existing Record' });
+
     // Wait for records to load
-    await expect(page.locator('text=Existing Record')).toBeVisible({ timeout: 5000 });
+    await expect(existingRecord).toBeVisible({ timeout: 5000 });
     
     // Click edit button on first record
-    const editButtons = page.locator('[aria-label="Edit record"], button:has-text("Edit")');
-    const firstEditButton = editButtons.first();
+    const firstEditButton = existingRecord.getByTestId('record-edit').first();
     
     if (await firstEditButton.isVisible()) {
       await firstEditButton.click();
@@ -169,18 +192,19 @@ test.describe('Record Management', () => {
 
     await page.goto('/');
     
+    const existingRecord = page.getByTestId('record-card').filter({ hasText: 'Existing Record' });
+
     // Wait for records to load
-    await expect(page.locator('text=Existing Record')).toBeVisible({ timeout: 5000 });
+    await expect(existingRecord).toBeVisible({ timeout: 5000 });
     
     // Find and click delete button
-    const deleteButtons = page.locator('[aria-label="Delete record"], button:has-text("Delete")');
-    const firstDeleteButton = deleteButtons.first();
+    const firstDeleteButton = existingRecord.getByTestId('record-delete').first();
     
     if (await firstDeleteButton.isVisible()) {
       await firstDeleteButton.click();
       
       // If there's a confirmation dialog, confirm it
-      const confirmButton = page.locator('button:has-text("Confirm"), button:has-text("Yes")');
+      const confirmButton = page.getByTestId('confirm-dialog-confirm').or(page.locator('button:has-text("Confirm"), button:has-text("Yes")'));
       if (await confirmButton.isVisible({ timeout: 1000 }).catch(() => false)) {
         await confirmButton.click();
       }
@@ -203,11 +227,23 @@ test.describe('Error Handling', () => {
 
     await page.goto('/');
     
-    await page.fill('textarea', 'Test prompt');
-    await page.click('button[type="submit"]');
+    const textarea = page.locator('textarea');
+    const submitButton = page.locator('button[type="submit"]');
+    
+    // Use pressSequentially for webkit compatibility with React controlled inputs
+    await textarea.click();
+    await textarea.pressSequentially('Test prompt', { delay: 10 });
+    
+    // Wait for React to update the button state after filling
+    await expect(submitButton).toBeEnabled({ timeout: 5000 });
+    
+    await submitButton.click();
     
     // Should show error message
-    await expect(page.locator('text=error').or(page.locator('text=Error')).or(page.locator('text=failed').or(page.locator('text=Failed')))).toBeVisible({ timeout: 5000 });
+    const errorLocator = page.getByTestId('error-message').or(
+      page.locator('text=error').or(page.locator('text=Error')).or(page.locator('text=failed')).or(page.locator('text=Failed'))
+    );
+    await expect(errorLocator).toBeVisible({ timeout: 5000 });
   });
 });
 

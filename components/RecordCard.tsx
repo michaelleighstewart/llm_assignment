@@ -119,7 +119,11 @@ export function RecordCard({ record, onUpdate, onDelete }: RecordCardProps) {
   }
 
   return (
-    <div className={`relative bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 ${isDeleting ? 'opacity-50 pointer-events-none' : ''}`}>
+    <div
+      data-testid="record-card"
+      data-record-id={record.id}
+      className={`relative bg-white dark:bg-gray-800 p-6 rounded-xl shadow-md border border-gray-200 dark:border-gray-700 ${isDeleting ? 'opacity-50 pointer-events-none' : ''}`}
+    >
       {isDeleting && (
         <div className="absolute inset-0 flex items-center justify-center bg-white/80 dark:bg-gray-800/80 rounded-xl">
           <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300 font-semibold">
@@ -129,13 +133,22 @@ export function RecordCard({ record, onUpdate, onDelete }: RecordCardProps) {
         </div>
       )}
       {record.title && (
-        <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3 bg-gradient-to-r from-blue-500 to-purple-500 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+        <h3
+          data-testid="record-title"
+          className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-3 bg-gradient-to-r from-blue-500 to-purple-500 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent"
+        >
           {record.title}
         </h3>
       )}
-      <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap mb-5 leading-relaxed">{record.description}</p>
+      <p
+        data-testid="record-description"
+        className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap mb-5 leading-relaxed"
+      >
+        {record.description}
+      </p>
       <div className="flex gap-3">
         <button
+          data-testid="record-edit"
           onClick={() => setIsEditing(true)}
           disabled={isDeleting}
           className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-400 to-blue-500 dark:from-blue-500 dark:to-blue-600 text-white text-sm font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
@@ -144,6 +157,7 @@ export function RecordCard({ record, onUpdate, onDelete }: RecordCardProps) {
           Edit
         </button>
         <button
+          data-testid="record-delete"
           onClick={handleDeleteClick}
           disabled={isDeleting}
           className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-rose-400 to-rose-500 dark:from-rose-500 dark:to-rose-600 text-white text-sm font-semibold rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-rose-400 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"

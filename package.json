@@ -12,8 +12,8 @@
     "db:push": "drizzle-kit push",
     "test": "vitest",
     "test:run": "vitest run",
-    "test:unit": "vitest run --dir __tests__/unit",
-    "test:integration": "vitest run --dir __tests__/integration",
+    "test:unit": "vitest run __tests__/unit",
+    "test:integration": "vitest run __tests__/integration",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:coverage": "vitest run --coverage"

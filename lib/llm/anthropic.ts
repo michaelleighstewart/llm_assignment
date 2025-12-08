@@ -1,4 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
+import type { ToolUseBlock } from '@anthropic-ai/sdk/resources/messages';
+import { z } from 'zod';
 import type { LLMProvider, LLMResponse } from './provider';
 
 /**
@@ -49,15 +51,28 @@ export class AnthropicProvider implements LLMProvider {
 
     // Extract the tool_use result
     const toolUse = message.content.find(
-      (block: any) => block.type === 'tool_use' && block.name === 'create_records'
+      (block): block is ToolUseBlock =>
+        block.type === 'tool_use' && block.name === 'create_records'
     );
 
     if (!toolUse || toolUse.type !== 'tool_use') {
       throw new Error('No structured tool output from Anthropic');
     }
 
+    // Validate and narrow the tool output shape to avoid unknown typing
+    const ToolOutputSchema = z.object({
+      records: z.array(
+        z.object({
+          title: z.string().nullable().optional(),
+          description: z.string(),
+        })
+      ),
+    });
+
+    const parsed = ToolOutputSchema.parse(toolUse.input);
+
     return {
-      records: toolUse.input.records.map((r: any) => ({
+      records: parsed.records.map((r) => ({
         title: r.title ?? undefined,
         description: r.description,
       })),

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db, getTables } from '@/lib/db/client';
-import { eq } from 'drizzle-orm';
+import { queries } from '@/lib/db/client';
 import { z } from 'zod';
 
 const updateRecordSchema = z.object({
@@ -39,15 +38,10 @@ export async function PUT(
     const body = await request.json();
     const data = updateRecordSchema.parse(body);
 
-    const tables = getTables();
-    const [updatedRecord] = await (db
-      .update as any)(tables.records) // eslint-disable-line @typescript-eslint/no-explicit-any
-      .set({
-        title: data.title ?? null,  // Use ?? to preserve empty strings
-        description: data.description,
-      })
-      .where(eq(tables.records.id, parseInt(id)))
-      .returning();
+    const [updatedRecord] = await queries.updateRecord(parseInt(id), {
+      title: data.title ?? null,
+      description: data.description,
+    });
 
     if (!updatedRecord) {
       return NextResponse.json(
@@ -88,11 +82,8 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const tables = getTables();
     
-    await (db
-      .delete as any)(tables.records) // eslint-disable-line @typescript-eslint/no-explicit-any
-      .where(eq(tables.records.id, parseInt(id)));
+    await queries.deleteRecord(parseInt(id));
 
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -103,4 +94,3 @@ export async function DELETE(
     );
   }
 }
-

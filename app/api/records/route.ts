@@ -1,11 +1,9 @@
 import { NextResponse } from 'next/server';
-import { db, getTables } from '@/lib/db/client';
+import { queries } from '@/lib/db/client';
 
 export async function GET() {
   try {
-    const tables = getTables();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const records = await (db.select as any)().from(tables.records);
+    const records = await queries.getAllRecords();
     
     return NextResponse.json({ records });
   } catch (error) {
@@ -16,4 +14,3 @@ export async function GET() {
     );
   }
 }
-

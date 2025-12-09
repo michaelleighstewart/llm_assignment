@@ -74,16 +74,3 @@ export async function submitPrompt(content: string): Promise<SubmitPromptResult>
   }
 }
 
-export async function GET() {
-  try {
-    const prompts = await queries.getAllPrompts();
-    
-    return NextResponse.json({ prompts });
-  } catch (error) {
-    console.error('Error fetching prompts:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch prompts' },
-      { status: 500 }
-    );
-  }
-}

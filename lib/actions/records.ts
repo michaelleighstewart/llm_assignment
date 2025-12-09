@@ -1,7 +1,6 @@
 'use server';
 
-import { db, getTables } from '@/lib/db/client';
-import { eq } from 'drizzle-orm';
+import { queries } from '@/lib/db/client';
 import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 
@@ -35,15 +34,10 @@ export async function updateRecord(
   try {
     const validated = updateRecordSchema.parse(data);
 
-    const tables = getTables();
-    const [updatedRecord] = await (db
-      .update as any)(tables.records) // eslint-disable-line @typescript-eslint/no-explicit-any
-      .set({
-        title: validated.title ?? null,
-        description: validated.description,
-      })
-      .where(eq(tables.records.id, id))
-      .returning();
+    const [updatedRecord] = await queries.updateRecord(id, {
+      title: validated.title ?? null,
+      description: validated.description,
+    });
 
     if (!updatedRecord) {
       return {
@@ -80,11 +74,7 @@ export async function updateRecord(
  */
 export async function deleteRecord(id: number): Promise<DeleteRecordResult> {
   try {
-    const tables = getTables();
-
-    await (db
-      .delete as any)(tables.records) // eslint-disable-line @typescript-eslint/no-explicit-any
-      .where(eq(tables.records.id, id));
+    await queries.deleteRecord(id);
 
     revalidatePath('/');
 

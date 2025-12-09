@@ -1,16 +1,31 @@
-import { NextRequest, NextResponse } from 'next/server';
+'use server';
+
 import { queries } from '@/lib/db/client';
 import { getLLMProvider } from '@/lib/llm';
+import { revalidatePath } from 'next/cache';
 import { z } from 'zod';
 
 const promptSchema = z.object({
   content: z.string().min(1, 'Prompt cannot be empty'),
 });
 
-export async function POST(request: NextRequest) {
+export interface SubmitPromptResult {
+  success: boolean;
+  error?: string;
+  prompt?: {
+    id: number;
+    content: string;
+  };
+  records?: Array<{
+    id: number;
+    title?: string | null;
+    description: string;
+  }>;
+}
+
+export async function submitPrompt(content: string): Promise<SubmitPromptResult> {
   try {
-    const body = await request.json();
-    const { content } = promptSchema.parse(body);
+    const validated = promptSchema.parse({ content });
 
     // Delete all existing prompts and records (requirement: delete previous records)
     await queries.deleteAllRecords();
@@ -21,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     // Get LLM response
     const llmProvider = getLLMProvider();
-    const llmResponse = await llmProvider.generateResponse(content);
+    const llmResponse = await llmProvider.generateResponse(validated.content);
 
     // Insert records from LLM response
     const recordsToInsert = llmResponse.records.map((record) => ({
@@ -35,24 +50,27 @@ export async function POST(request: NextRequest) {
     // Fetch all records to return
     const records = await queries.getRecordsByPromptId(prompt.id);
 
-    return NextResponse.json({
+    revalidatePath('/');
+
+    return {
+      success: true,
       prompt,
       records,
-    });
+    };
   } catch (error) {
     console.error('Error processing prompt:', error);
-    
+
     if (error instanceof z.ZodError) {
-      return NextResponse.json(
-        { error: 'Invalid request', details: error.issues },
-        { status: 400 }
-      );
+      return {
+        success: false,
+        error: error.issues[0]?.message || 'Invalid prompt',
+      };
     }
 
-    return NextResponse.json(
-      { error: 'Failed to process prompt' },
-      { status: 500 }
-    );
+    return {
+      success: false,
+      error: 'Failed to process prompt',
+    };
   }
 }
 

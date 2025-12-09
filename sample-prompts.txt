@@ -1,0 +1,48 @@
+# Sample Prompts
+# Use these example prompts with the application to generate records
+
+## Financial Planning (from requirements)
+What are some tax minimization strategies for a high-income couple in Australia?
+
+### Expected Sample Records:
+
+• Salary Sacrifice into Superannuation
+Encourage your client to make salary sacrifice contributions to their superannuation
+fund. These are taxed at 15%, which is lower than their marginal tax rate. The current
+cap is $27,500 per person per year, including employer contributions.
+
+• Spouse Superannuation Contributions
+If one partner earns significantly less, the higher-income partner can contribute up to
+$3,000 to their spouse's superannuation and receive a tax offset of up to $540.
+
+• Negative Gearing on Investment Property
+If they own an investment property or plan to purchase one, the interest on the loan and
+associated expenses can be claimed as a deduction. If the property is negatively geared
+(i.e., rental income is less than the expenses), it can reduce taxable income.
+
+---
+
+## General Knowledge
+List 5 interesting facts about space exploration
+
+## Programming
+Describe 3 popular JavaScript frameworks and their main use cases
+
+## Creative Writing
+Generate 4 short story ideas involving time travel
+
+## Business
+List 5 strategies for improving team productivity
+
+## Science
+Describe 3 recent breakthroughs in renewable energy technology
+
+## History
+List 4 significant events from the Industrial Revolution
+
+## Health & Wellness
+Describe 5 simple habits for better sleep quality
+
+## Technology
+List 3 emerging technologies that will shape the next decade
+

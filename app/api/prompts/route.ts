@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db, getTables } from '@/lib/db/client';
+import { queries } from '@/lib/db/client';
 import { getLLMProvider } from '@/lib/llm';
-import { eq } from 'drizzle-orm';
 import { z } from 'zod';
 
 const promptSchema = z.object({
@@ -14,15 +13,11 @@ export async function POST(request: NextRequest) {
     const { content } = promptSchema.parse(body);
 
     // Delete all existing prompts and records (requirement: delete previous records)
-    const tables = getTables();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (db.delete as any)(tables.records);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (db.delete as any)(tables.prompts);
+    await queries.deleteAllRecords();
+    await queries.deleteAllPrompts();
 
     // Create new prompt
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const [prompt] = await (db.insert as any)(tables.prompts).values({ content }).returning();
+    const [prompt] = await queries.insertPrompt(content);
 
     // Get LLM response
     const llmProvider = getLLMProvider();
@@ -35,12 +30,10 @@ export async function POST(request: NextRequest) {
       description: record.description,
     }));
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    await (db.insert as any)(tables.records).values(recordsToInsert);
+    await queries.insertRecords(recordsToInsert);
 
     // Fetch all records to return
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const records = await (db.select as any)().from(tables.records).where(eq(tables.records.promptId, prompt.id));
+    const records = await queries.getRecordsByPromptId(prompt.id);
 
     return NextResponse.json({
       prompt,
@@ -65,9 +58,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
-    const tables = getTables();
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const prompts = await (db.select as any)().from(tables.prompts);
+    const prompts = await queries.getAllPrompts();
     
     return NextResponse.json({ prompts });
   } catch (error) {
@@ -78,4 +69,3 @@ export async function GET() {
     );
   }
 }
-
